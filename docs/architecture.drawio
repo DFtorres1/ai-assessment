@@ -1,0 +1,297 @@
+<mxfile host="app.diagrams.net" version="24.7.17">
+  <diagram name="Blossom Banking Helper" id="blossom-arch">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ═══════════════════════════════════════
+             CLIENT
+        ════════════════════════════════════════ -->
+        <mxCell id="c_client" value="&lt;b&gt;Web / Mobile Client&lt;/b&gt;"
+          style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;"
+          vertex="1" parent="1">
+          <mxGeometry x="390" y="20" width="220" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════
+             FASTAPI LAYER
+        ════════════════════════════════════════ -->
+        <mxCell id="c_api" value="&lt;b&gt;FastAPI — api/&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;POST /chat (JSON response)&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;GET /chat/stream (SSE tokens)&lt;/font&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="140" y="110" width="720" height="52" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════
+             INPUT GUARD
+        ════════════════════════════════════════ -->
+        <mxCell id="c_guard" value="&lt;b&gt;Input Guard&lt;/b&gt;&lt;br&gt;Regex + Haiku LLM · ~150 ms"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;"
+          vertex="1" parent="1">
+          <mxGeometry x="310" y="205" width="270" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="c_blocked" value="HTTP 400&lt;br&gt;SSE rejection stream"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;dashed=1;"
+          vertex="1" parent="1">
+          <mxGeometry x="630" y="205" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════
+             LANGGRAPH AGENT CONTAINER
+        ════════════════════════════════════════ -->
+        <mxCell id="c_graph" value="&lt;b&gt;LangGraph Agent — agent/&lt;/b&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;dashed=1;fontSize=13;fontStyle=1;verticalAlign=top;"
+          vertex="1" parent="1">
+          <mxGeometry x="80" y="295" width="690" height="490" as="geometry" />
+        </mxCell>
+
+        <!-- ── router_node ─────────────────────── -->
+        <mxCell id="c_router" value="&lt;b&gt;router_node&lt;/b&gt;&lt;br&gt;Haiku + Active-Prompt · 9 intents"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="325" y="355" width="205" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ── rejection_node ─────────────────── -->
+        <mxCell id="c_reject" value="&lt;b&gt;rejection_node&lt;/b&gt;&lt;br&gt;static message"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="100" y="445" width="155" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ── query_expander_node ─────────────── -->
+        <mxCell id="c_expander" value="&lt;b&gt;query_expander_node&lt;/b&gt;&lt;br&gt;Haiku · 3 expanded queries"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="325" y="445" width="205" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ── retrieve_node ──────────────────── -->
+        <mxCell id="c_retrieve" value="&lt;b&gt;retrieve_node&lt;/b&gt;&lt;br&gt;ChromaDB cosine · top-5 chunks"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="325" y="535" width="205" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ── holidays_tool_node ─────────────── -->
+        <mxCell id="c_holidays" value="&lt;b&gt;holidays_tool_node&lt;/b&gt;&lt;br&gt;Nager.Date API · LRU cache"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="580" y="535" width="165" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ── fallback_node ──────────────────── -->
+        <mxCell id="c_fallback" value="&lt;b&gt;fallback_node&lt;/b&gt;&lt;br&gt;Haiku · clarifying question"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="580" y="625" width="165" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ── answer_node ─────────────────────── -->
+        <mxCell id="c_answer" value="&lt;b&gt;answer_node&lt;/b&gt;&lt;br&gt;Sonnet / Haiku · Meta-Prompting&lt;br&gt;Self-Ask + CoT + ReAct"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="325" y="625" width="205" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ── Output Guard (inline in answer_node) -->
+        <mxCell id="c_og" value="&lt;b&gt;Output Guard&lt;/b&gt;&lt;br&gt;embed cosine check · Reflexion · citation validator"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="295" y="730" width="265" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════
+             FINAL RESPONSE
+        ════════════════════════════════════════ -->
+        <mxCell id="c_resp" value="&lt;b&gt;Final Response&lt;/b&gt;&lt;br&gt;answer · citations · tool_calls · timing_ms"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="265" y="830" width="320" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════
+             STORAGE
+        ════════════════════════════════════════ -->
+        <mxCell id="c_chroma" value="&lt;b&gt;ChromaDB&lt;/b&gt;&lt;br&gt;vector store"
+          style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="830" y="520" width="115" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="c_sqlite" value="&lt;b&gt;SQLite&lt;/b&gt;&lt;br&gt;session history"
+          style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;"
+          vertex="1" parent="1">
+          <mxGeometry x="830" y="420" width="115" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════
+             MCP SERVER
+        ════════════════════════════════════════ -->
+        <mxCell id="c_mcp" value="&lt;b&gt;MCP Server&lt;/b&gt; (separate process)&lt;br&gt;blossom-holidays&lt;br&gt;──────────────────&lt;br&gt;get_federal_holidays&lt;br&gt;is_business_day&lt;br&gt;next_business_day"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=10;dashed=1;"
+          vertex="1" parent="1">
+          <mxGeometry x="820" y="620" width="155" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════
+             PROMPTING TECHNIQUES LEGEND
+        ════════════════════════════════════════ -->
+        <mxCell id="c_legend" value="&lt;b&gt;Prompting Techniques&lt;/b&gt;&lt;br&gt;─────────────────────&lt;br&gt;Few-Shot · Active-Prompt → router&lt;br&gt;Prompt Chaining → expander→retrieve&lt;br&gt;Self-Ask + CoT + ReAct → answer&lt;br&gt;Meta-Prompting → answer (Haiku/Sonnet)&lt;br&gt;Directional Stimulus → answer&lt;br&gt;Reflexion → output guard"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=8;"
+          vertex="1" parent="1">
+          <mxGeometry x="820" y="295" width="230" height="115" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════
+             EDGES — MAIN FLOW
+        ════════════════════════════════════════ -->
+
+        <!-- Client → FastAPI -->
+        <mxCell id="e_client_api" value="message"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" source="c_client" target="c_api" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- FastAPI → Input Guard -->
+        <mxCell id="e_api_guard" value=""
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;"
+          edge="1" source="c_api" target="c_guard" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Input Guard → Blocked -->
+        <mxCell id="e_guard_blocked" value="blocked"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450;fontColor=#b85450;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;"
+          edge="1" source="c_guard" target="c_blocked" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Input Guard → Router (passed) -->
+        <mxCell id="e_guard_router" value="passed"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#82b366;fontColor=#82b366;"
+          edge="1" source="c_guard" target="c_router" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Router → Query Expander (in_scope) -->
+        <mxCell id="e_router_expander" value="in_scope"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;"
+          edge="1" source="c_router" target="c_expander" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Router → Rejection (out_of_scope) -->
+        <mxCell id="e_router_reject" value="out_of_scope"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450;fontColor=#b85450;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;"
+          edge="1" source="c_router" target="c_reject" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Query Expander → Retrieve -->
+        <mxCell id="e_expander_retrieve" value=""
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;"
+          edge="1" source="c_expander" target="c_retrieve" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Retrieve → Answer (confident) -->
+        <mxCell id="e_retrieve_answer" value="confident"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#82b366;fontColor=#82b366;"
+          edge="1" source="c_retrieve" target="c_answer" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Retrieve → Holidays Tool (holiday_timing) -->
+        <mxCell id="e_retrieve_holidays" value="holiday_timing"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;"
+          edge="1" source="c_retrieve" target="c_holidays" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Retrieve → Fallback (low_confidence) -->
+        <mxCell id="e_retrieve_fallback" value="low_confidence"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;fontColor=#d6b656;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" source="c_retrieve" target="c_fallback" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Holidays → Answer -->
+        <mxCell id="e_holidays_answer" value=""
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" source="c_holidays" target="c_answer" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Answer → Output Guard -->
+        <mxCell id="e_answer_og" value=""
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;"
+          edge="1" source="c_answer" target="c_og" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Output Guard → Final Response -->
+        <mxCell id="e_og_resp" value=""
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;"
+          edge="1" source="c_og" target="c_resp" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Fallback → Final Response -->
+        <mxCell id="e_fallback_resp" value=""
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;"
+          edge="1" source="c_fallback" target="c_resp" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="662" y="810" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Rejection → Final Response -->
+        <mxCell id="e_reject_resp" value=""
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;"
+          edge="1" source="c_reject" target="c_resp" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="177" y="810" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════
+             EDGES — STORAGE
+        ════════════════════════════════════════ -->
+
+        <!-- Retrieve ↔ ChromaDB -->
+        <mxCell id="e_retrieve_chroma" value="cosine search"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;startArrow=block;endArrow=block;startFill=0;endFill=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;"
+          edge="1" source="c_retrieve" target="c_chroma" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Graph ↔ SQLite (session history) -->
+        <mxCell id="e_graph_sqlite" value="get/save history"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;startArrow=block;endArrow=block;startFill=0;endFill=0;exitX=1;exitY=0.4;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;"
+          edge="1" source="c_graph" target="c_sqlite" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════
+             EDGES — MCP SERVER
+        ════════════════════════════════════════ -->
+
+        <!-- MCP ↔ Holidays Tool (same HolidaysTool) -->
+        <mxCell id="e_mcp_holidays" value="same HolidaysTool"
+          style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;startArrow=block;endArrow=block;startFill=0;endFill=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;"
+          edge="1" source="c_mcp" target="c_holidays" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

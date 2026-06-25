@@ -1,0 +1,33 @@
+# Python virtual environment — never copy into the image
+.venv/
+venv/
+env/
+
+# Secrets — must never be baked into an image
+.env
+.env.*
+
+# Local caches
+.cache/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Persistent data — mounted as a volume at runtime
+data/
+
+# Test & dev files not needed at runtime
+tests/
+scripts/
+docs/
+
+# IDE / OS
+.git/
+.DS_Store
+*.egg-info/
+dist/
+build/

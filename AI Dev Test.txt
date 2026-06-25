@@ -1,0 +1,201 @@
+Blossom Banking Helper — Retrieval‐Augmented
+Agent (Login; Security Only)
+
+
+
+Goal:
+
+Build a small, production‐minded agentic service that answers everyday
+login; security questions for Blossom Banking members and support staff using
+a knowledge base you’ll create from the attached PDFs. Use LangGraph or
+LangChain.
+
+You may use any LLM (Bedrock, OpenAI, Anthropic, etc.). Tone; UX: The
+assistant should be warm, encouraging, and confidence‐boosting, making
+users feel smart and supported.
+
+Keep answers concise and offer step‐by‐step details on demand (e.g., “Want
+the step‐by‐step?”).
+
+
+
+1) What you’ll build
+
+An API (and minimal web/chat UI) for a friendly banking helper that:
+
+1. Searches a local knowledge base you ingest from the provided PDFs and
+answers login; security questions grounded in that content.
+
+2. Calls one public API to enrich answers: US Federal Holidays API (Nager.Date
+or equivalent).
+
+3. Explains at a user‐appropriate level, cites the source page(s) it used, and
+avoids hallucinations.
+
+4. Meets a 5s p95 latency SLA for the final answer body on /chat (streaming
+SSE may start earlier — bonus).
+
+
+
+2) Functional requirements
+A. Agent capabilities
+
+• Retrieval‐augmented answers (RAG). Ingest PDFs → local vector store →
+ground answers with short quotes/snippets plus page references. Keep
+answers short and confident; offer to expand with steps when helpful.
+• Tool use; public API (exactly one): US Federal Holidays (e.g., Nager.Date). Use it
+when a date‐sensitive policy or timing could affect a user (e.g., password reset
+expectations around holidays). Document your choice and usage.
+• Scope: Login; Security only. (sign‐in failures, lockouts, password reset flows,
+MFA/verification codes, device recognition/“remember me” cadence,
+username recovery, account unlock paths, safety do’s; don’ts). Do not
+implement other banking topics.
+• Safety rails: Never reveal confidential member data. If a query is outside
+scope, kindly say so and suggest a safe next step.
+
+
+
+B. UX; outputs
+
+• API: POST /chat → {session_id, message, user_type} → {answer,
+citations[], tool_calls[], timing_ms}.
+• SSE (bonus): GET /chat/stream?session_id=... that streams tokens and
+tool events.
+• Minimal UI: Simple chat page calling your API.
+• Citations: Per‐message citations (doc_name, page or section).
+• Copy style: Warm, respectful, encouraging.
+
+
+
+3) Non‐functional requirements
+
+• Latency SLA: p95 ≤ 5s on /chat (measured locally). SSE may start earlier
+(bonus).
+• Determinism knobs: Expose temperature/top‐p.
+• Observability: Log tool calls and retrieval hits (doc + page). Track basic
+latency metrics (overall and by tool).
+• Testing: A few automated tests (unit or lightweight E2E) for the retriever
+and at least one tool call.
+
+
+
+4) Tech constraints
+
+• Use LangGraph or LangChain for orchestration.
+• LLM: Any vendor (document choice; trade‐offs).
+• Embedding store: Any local vector DB (FAISS/Chroma/etc.).
+• Packaging: Dockerized run with a one‐liner start.
+
+
+
+Plus items (bonus; seniority signals):
+
+1. SSE streaming for progressive responses.
+2. MCP Server exposing a holidays tool.
+3. State persistence across calls (session memory beyond process lifetime:
+Redis/SQLite/Postgres; retrieval cache).
+4. Testing framework setup (pytest, fixtures, httpx, coverage target).
+5. Temporary public deployment (Railway/Fly.io/Render/HF Spaces
+Vercel) with healthcheck.
+6. Quality gates (pre‐commit, ruff/black/isort, mypy/pyright, bandit).
+7. Rate‐limit/backoff around LLM/tools + graceful timeouts.
+8. Config discipline (.env.example, env‐based secrets, sensible defaults).
+
+
+
+5) Dataset; ingestion
+
+• Create data/ and ingest only the PDFs related to login; security: - Magic
+Training — Back Office (admin actions, unlock/suspend) - Magic
+Training (Member admin) (account settings, unlock/suspend) - Magic
+Phone Banking. Training (create/lock/unlock/reset for phone banking
+users) - Personal Banking Training (sign‐in UX, remember‐me cadence,
+verification prompts) - Login — Security items (username/password
+policy, lockout, reset) - Sign Up (Set Up Online Access) (account
+creation, verification steps)
+• Ingestion guidance: Chunk by semantic sections, preserve page
+numbers; store (doc_name, page, section_heading, text); tag metadata
+(e.g., password, lockout, mfa, remember_me, username). Provide a small
+evaluate script that verifies at least one relevant chunk is returned for
+our sample prompts.
+
+
+
+6) Sample user prompts (Login; Security)
+
+1. I got locked out after entering the wrong password. Can I unlock
+myself?
+2. What are the password rules? Can you list them quickly?
+3. Why do I keep getting verification codes when I log in?
+4. How often does “remember this device” expire?
+5. I forgot my username — how do I recover it?
+6. I changed phones and now my codes don’t work. What should I do?
+7. Please help me reset my password safely.
+8. Can I unlock a phone‐banking user without calling support?
+9. I signed up, but I’m stuck — where do I finish my setup?
+10. If I start a password reset on a federal holiday, when should I expect
+the next step? (Use Holidays API.)
+
+
+
+7) Architecture (suggested)
+
+• Nodes: router → classify(user_intent) → retrieve → answer; tool node
+holidays_api.
+• Fallback: ask a clarifying question or route to support if retrieval
+confidence is low.
+• Prompting: “You are Blossom’s friendly banking helper. Be warm, brief,
+and cite exact pages. If unsure, say so and suggest a safe next step.”
+• Streaming (bonus): stream partial answer first; append citations after
+retrieval.
+• MCP (bonus): MCP server exporting the holidays tool.
+
+
+
+8) Deliverables
+
+1. Repo with source, README.md, and architecture diagram (png/svg).
+2. One‐liner run: docker compose up (or Dockerfile + make run).
+3. .env.example (keys for LLM + Holidays API).
+4. Demo UI: minimal chat page.
+5. Tests: retrieval + one tool call.
+6. scripts/eval.py: runs the 10 prompts; prints latency + top‐k hits.
+7. (Optional) Short video (≤5 min).
+8. (Bonus) Public demo URL with healthcheck.
+
+
+
+How we’ll evaluate
+
+• Correctness; grounding (35%) — Accurate answers with correct citations
+to the PDFs.
+• Agent design; tool use (20%) — Clean graph/chain, clear tool
+boundaries, sensible fallbacks.
+• Latency; observability (15%) — Meets p95 ≤ 5s, basic telemetry, streaming
+(bonus).
+• Code quality; tests (15%) — Readable, modular, typed where useful,
+meaningful tests.
+• UX; tone (10%) — Friendly, concise, makes users feel capable; safe
+fallbacks.
+• Extras (5%) — MCP server, SSE polish, persistence, deployment, quality
+gates.
+
+
+
+Notes; constraints
+
+• Keep any personally identifying examples fictional.
+• Do not expose sensitive values (e.g., verification codes) or internal IDs to
+end users.
+• If a question is out of scope (non‐login/security), kindly say so and
+propose the next safe action.
+• Document assumptions and trade‐offs.
+
+
+
+Appendix — Example UX copy (tone)
+
+• “Great question — this is quick to fix. You’re already 80% there. Let’s get
+you back in safely. If you’ve been locked out, follow the reset‐password
+link we’ll send to your verified email. After you set a new password, you
+can sign in normally. Want the step‐by‐step?”

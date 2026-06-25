@@ -1,0 +1,13 @@
+# Dependencies installed fresh in the image
+node_modules/
+
+# Previous local builds
+dist/
+
+# Secrets
+.env
+.env.*
+
+# IDE / OS
+.git/
+.DS_Store
