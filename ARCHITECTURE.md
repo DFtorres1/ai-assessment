@@ -70,8 +70,7 @@
 
 | Tool               | Role                                                       |
 | ------------------ | ---------------------------------------------------------- |
-| `ruff`             | Linting + formatting (replaces flake8 + isort + pyupgrade) |
-| `black`            | Opinionated formatter                                      |
+| `ruff`             | Linting + formatting (replaces flake8 + isort + black)     |
 | `mypy`             | Static type checking                                       |
 | `bandit`           | Security scanning                                          |
 | `pre-commit`       | Gates all of the above on commit                           |

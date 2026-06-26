@@ -60,7 +60,7 @@ uvicorn api.main:app --reload
 cd frontend
 npm install
 npm run dev
-# UI at http://localhost:5173
+# UI at http://localhost:3000
 ```
 
 ### Ingest the knowledge base
@@ -93,7 +93,7 @@ This reads the PDFs from `sample_docs/` (or the path set in `PDF_DIR`), chunks t
 | SSE streaming (`GET /chat/stream`) | Done |
 | MCP server exposing the holidays tool | Done |
 | Session persistence across restarts (SQLite) | Done |
-| Testing framework (pytest, httpx, 99.28% coverage, 115 tests) | Done |
+| Testing framework (pytest, httpx, 98.64% coverage, 116 tests) | Done |
 | Quality gates (ruff, mypy, bandit, pre-commit) | Done |
 | Rate-limit / backoff around LLM and external APIs (tenacity) | Done |
 | Config discipline (`.env.example`, env-based secrets) | Done |
@@ -203,8 +203,10 @@ data: {"type": "done",       "tool_calls": [...], "timing_ms": {...}}
 ### `GET /health`
 
 ```json
-{"status": "ok", "checks": {"db": "ok", "chroma": "ok"}}
+{"status": "ok", "checks": {"db": "ok", "chroma": "ok", "anthropic_api_key": "ok"}}
 ```
+
+Returns `"degraded"` overall status (HTTP 200) when `anthropic_api_key` is `"missing"`. The app still starts without a key — the UI shows a prominent warning banner and disables the chat input until a key is configured.
 
 ### `POST /ingest`
 
@@ -229,7 +231,7 @@ cd backend
 .venv/bin/pytest tests/integration/    # integration tests only (LLMs mocked)
 ```
 
-Current coverage: **99.28%** across 115 tests. The suite runs entirely offline — LLMs and external APIs are mocked via pytest fixtures.
+Current coverage: **98.64%** across 116 tests. The suite runs entirely offline — LLMs and external APIs are mocked via pytest fixtures.
 
 ---
 
@@ -350,7 +352,7 @@ AITechAssessment/
 │   ├── Dockerfile
 │   ├── .env.example
 │   └── .dockerignore
-├── frontend/                      # Vite + React + TypeScript chat UI
+├── frontend/                      # Vite 6 + React + TypeScript chat UI
 │   ├── src/
 │   ├── Dockerfile
 │   └── nginx.conf
