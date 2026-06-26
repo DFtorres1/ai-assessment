@@ -2,9 +2,10 @@
 
 A production-minded RAG agent that answers login and security questions for Blossom Banking members and support staff. Built with LangGraph, Claude (Anthropic), ChromaDB, and FastAPI.
 
+> **Architecture diagram:** [docs/architecture.drawio](./docs/architecture-diagram.png)
+>
 > **Architecture deep-dive:** [ARCHITECTURE.md](./ARCHITECTURE.md)  
-> **Backend spec & TDD test contracts:** [BACKEND_SPEC.md](./BACKEND_SPEC.md)  
-> **Architecture diagram:** [docs/architecture.drawio](./docs/architecture.drawio)
+> **Backend spec & TDD test contracts:** [BACKEND_SPEC.md](./BACKEND_SPEC.md)
 
 ---
 
@@ -88,25 +89,25 @@ This reads the PDFs from `sample_docs/` (or the path set in `PDF_DIR`), chunks t
 
 ## Implemented bonus items
 
-| Bonus | Status |
-|---|---|
-| SSE streaming (`GET /chat/stream`) | Done |
-| MCP server exposing the holidays tool | Done |
-| Session persistence across restarts (SQLite) | Done |
-| Testing framework (pytest, httpx, 98.64% coverage, 116 tests) | Done |
-| Quality gates (ruff, mypy, bandit, pre-commit) | Done |
-| Rate-limit / backoff around LLM and external APIs (tenacity) | Done |
-| Config discipline (`.env.example`, env-based secrets) | Done |
+| Bonus                                                         | Status |
+| ------------------------------------------------------------- | ------ |
+| SSE streaming (`GET /chat/stream`)                            | Done   |
+| MCP server exposing the holidays tool                         | Done   |
+| Session persistence across restarts (SQLite)                  | Done   |
+| Testing framework (pytest, httpx, 98.64% coverage, 116 tests) | Done   |
+| Quality gates (ruff, mypy, bandit, pre-commit)                | Done   |
+| Rate-limit / backoff around LLM and external APIs (tenacity)  | Done   |
+| Config discipline (`.env.example`, env-based secrets)         | Done   |
 
 ---
 
 ## Requirements
 
-| Dependency | Version |
-|---|---|
-| Python | ≥ 3.11 |
-| Docker + Docker Compose | any recent |
-| Anthropic API key | `claude-haiku-4-5-20251001` + `claude-sonnet-4-6` |
+| Dependency              | Version                                           |
+| ----------------------- | ------------------------------------------------- |
+| Python                  | ≥ 3.11                                            |
+| Docker + Docker Compose | any recent                                        |
+| Anthropic API key       | `claude-haiku-4-5-20251001` + `claude-sonnet-4-6` |
 
 ---
 
@@ -203,7 +204,10 @@ data: {"type": "done",       "tool_calls": [...], "timing_ms": {...}}
 ### `GET /health`
 
 ```json
-{"status": "ok", "checks": {"db": "ok", "chroma": "ok", "anthropic_api_key": "ok"}}
+{
+  "status": "ok",
+  "checks": { "db": "ok", "chroma": "ok", "anthropic_api_key": "ok" }
+}
 ```
 
 Returns `"degraded"` overall status (HTTP 200) when `anthropic_api_key` is `"missing"`. The app still starts without a key — the UI shows a prominent warning banner and disables the chat input until a key is configured.
@@ -399,14 +403,14 @@ INPUT GUARD ── regex pre-screen (~0 ms) ──► block if injection token
 
 **Latency budget (p95 target ≤ 5 s):**
 
-| Step | Budget |
-|---|---|
-| Input guard (regex + Haiku) | ~150 ms |
-| Router + query expander | ~300 ms |
-| ChromaDB retrieval (4× parallel) | ~80 ms |
-| Answer generation (Haiku/Sonnet, streamed) | ~1.5–3 s |
-| Holidays API (conditional) | ~300 ms |
-| **Total p95** | **~2–4 s** |
+| Step                                       | Budget     |
+| ------------------------------------------ | ---------- |
+| Input guard (regex + Haiku)                | ~150 ms    |
+| Router + query expander                    | ~300 ms    |
+| ChromaDB retrieval (4× parallel)           | ~80 ms     |
+| Answer generation (Haiku/Sonnet, streamed) | ~1.5–3 s   |
+| Holidays API (conditional)                 | ~300 ms    |
+| **Total p95**                              | **~2–4 s** |
 
 ---
 
@@ -414,13 +418,13 @@ INPUT GUARD ── regex pre-screen (~0 ms) ──► block if injection token
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full rationale. Key choices:
 
-| Decision | Why |
-|---|---|
-| Anthropic Claude (Haiku + Sonnet) | Best refusal behavior for banking safety; native tool use; streaming |
-| LangGraph StateGraph | Conditional routing and tool nodes map 1:1 to the spec; explicit state |
-| `all-MiniLM-L6-v2` embeddings (local) | Zero API cost; ~5 ms/query; strong enough for an 8-PDF domain corpus |
-| ChromaDB (persistent) | HNSW vector search + SQLite metadata; survives Docker restarts; no infra overhead |
-| SQLite + aiosqlite | Session memory across restarts without running a separate service |
-| Single Haiku guard call | Three verdicts (scope + PII + jailbreak) in one round-trip; ≤ 200 ms budget |
-| Meta-prompting (Haiku vs Sonnet) | Routes high-confidence answers to the faster/cheaper model automatically |
-| Active-Prompt (ExampleBank) | Pre-embeds 20 (message, intent) pairs; top-k similarity at query time improves router accuracy |
+| Decision                              | Why                                                                                            |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Anthropic Claude (Haiku + Sonnet)     | Best refusal behavior for banking safety; native tool use; streaming                           |
+| LangGraph StateGraph                  | Conditional routing and tool nodes map 1:1 to the spec; explicit state                         |
+| `all-MiniLM-L6-v2` embeddings (local) | Zero API cost; ~5 ms/query; strong enough for an 8-PDF domain corpus                           |
+| ChromaDB (persistent)                 | HNSW vector search + SQLite metadata; survives Docker restarts; no infra overhead              |
+| SQLite + aiosqlite                    | Session memory across restarts without running a separate service                              |
+| Single Haiku guard call               | Three verdicts (scope + PII + jailbreak) in one round-trip; ≤ 200 ms budget                    |
+| Meta-prompting (Haiku vs Sonnet)      | Routes high-confidence answers to the faster/cheaper model automatically                       |
+| Active-Prompt (ExampleBank)           | Pre-embeds 20 (message, intent) pairs; top-k similarity at query time improves router accuracy |

@@ -1,26 +1,32 @@
+import tempfile
 import time
 from pathlib import Path
+from typing import Annotated
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, File, Request, UploadFile
 
 from api.models import IngestResponse
-from config import settings
 
 router = APIRouter()
 
 
 @router.post("/ingest", response_model=IngestResponse)
-async def ingest(request: Request) -> IngestResponse:
+async def ingest(request: Request, files: Annotated[list[UploadFile], File(...)]) -> IngestResponse:
     t_start = time.monotonic()
-    pdf_dir = Path(settings.pdf_dir)
     chroma_client = request.app.state.chroma
 
     from knowledge.ingest import ingest_pdfs
 
-    result = await ingest_pdfs(pdf_dir=pdf_dir, chroma_client=chroma_client)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        for upload in files:
+            dest = tmp_path / (upload.filename or "upload.pdf")
+            dest.write_bytes(await upload.read())
+
+        result = await ingest_pdfs(pdf_dir=tmp_path, chroma_client=chroma_client)
 
     return IngestResponse(
         chunks_indexed=result.get("indexed", 0),
-        documents_processed=[],
+        documents_processed=result.get("documents", []),
         duration_ms=round((time.monotonic() - t_start) * 1000),
     )

@@ -58,7 +58,7 @@ async def ingest_pdfs(pdf_dir: Path, chroma_client: Any) -> dict[str, Any]:
 
     if not pdf_paths:
         log.warning("ingest.no_pdfs", directory=str(pdf_dir))
-        return {"status": "no_pdfs", "indexed": 0}
+        return {"status": "no_pdfs", "indexed": 0, "documents": []}
 
     from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 
@@ -87,7 +87,7 @@ async def ingest_pdfs(pdf_dir: Path, chroma_client: Any) -> dict[str, Any]:
     tagged = tag_chunks(all_chunks)
 
     if not tagged:
-        return {"status": "no_content", "indexed": 0}
+        return {"status": "no_content", "indexed": 0, "documents": []}
 
     batch_size = 100
     total = 0
@@ -101,4 +101,5 @@ async def ingest_pdfs(pdf_dir: Path, chroma_client: Any) -> dict[str, Any]:
         total += len(batch)
         log.info("ingest.batch_added", count=len(batch), total=total)
 
-    return {"status": "ok", "indexed": total}
+    doc_names = sorted({p.stem for p in pdf_paths})
+    return {"status": "ok", "indexed": total, "documents": doc_names}

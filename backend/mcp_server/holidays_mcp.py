@@ -1,7 +1,13 @@
 from __future__ import annotations
 
 import os
+import sys
+from pathlib import Path
 from typing import Any, Literal, cast
+
+# Ensure the backend package root is on sys.path when the script is run
+# directly (e.g. `mcp dev`) rather than as part of the installed package.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from mcp.server.fastmcp import FastMCP
 
