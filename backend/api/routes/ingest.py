@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.post("/ingest", response_model=IngestResponse)
-async def ingest(request: Request, files: Annotated[list[UploadFile], File(...)]) -> IngestResponse:
+async def ingest(request: Request, file: Annotated[UploadFile, File(...)]) -> IngestResponse:
     t_start = time.monotonic()
     chroma_client = request.app.state.chroma
 
@@ -19,9 +19,8 @@ async def ingest(request: Request, files: Annotated[list[UploadFile], File(...)]
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
-        for upload in files:
-            dest = tmp_path / (upload.filename or "upload.pdf")
-            dest.write_bytes(await upload.read())
+        dest = tmp_path / (file.filename or "upload.pdf")
+        dest.write_bytes(await file.read())
 
         result = await ingest_pdfs(pdf_dir=tmp_path, chroma_client=chroma_client)
 
